@@ -1,0 +1,14 @@
+<resources>
+    <style name="Theme.IslandTimer" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="snackbarStyle">@style/Widget.IslandTimer.Snackbar</item>
+        <item name="snackbarTextViewStyle">@style/Widget.IslandTimer.Snackbar.TextView</item>
+    </style>
+
+    <style name="Widget.IslandTimer.Snackbar" parent="Widget.Material3.Snackbar">
+        <item name="backgroundTint">@android:color/black</item>
+    </style>
+
+    <style name="Widget.IslandTimer.Snackbar.TextView" parent="Widget.Material3.Snackbar.TextView">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+</resources>
