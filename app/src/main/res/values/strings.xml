@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">超级岛计时</string>
+    <string name="app_name">islandTimer</string>
     <string name="accessibility_service_label">前台应用使用计时</string>
     <string name="accessibility_description">仅用于检测当前前台应用，以统计你配置的应用的使用时长并在超级岛显示。本服务只读取窗口包名用于判断前台，不读取任何文字或输入内容，也不执行任何模拟操作。</string>
 </resources>

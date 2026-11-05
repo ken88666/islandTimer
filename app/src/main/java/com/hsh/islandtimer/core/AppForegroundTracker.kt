@@ -1,10 +1,10 @@
-package com.hyperland.islandtimer.core
+﻿package com.hsh.islandtimer.core
 
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
-import com.hyperland.islandtimer.service.UsageTimerService
+import com.hsh.islandtimer.service.UsageTimerService
 
 /**
  * 前台应用状态机。

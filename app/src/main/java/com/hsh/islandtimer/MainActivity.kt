@@ -1,4 +1,4 @@
-package com.hyperland.islandtimer
+﻿package com.hsh.islandtimer
 
 import android.content.Intent
 import android.os.Bundle
@@ -12,15 +12,15 @@ import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.snackbar.Snackbar
-import com.hyperland.islandtimer.core.AppForegroundTracker
-import com.hyperland.islandtimer.core.TimeStore
-import com.hyperland.islandtimer.core.TrackedApps
-import com.hyperland.islandtimer.core.UsageReconcileWorker
-import com.hyperland.islandtimer.core.UsageStatsLedger
-import com.hyperland.islandtimer.databinding.ActivityMainBinding
-import com.hyperland.islandtimer.island.IslandNotifier
-import com.hyperland.islandtimer.keepalive.KeepAliveHelper
-import com.hyperland.islandtimer.service.ForegroundDetectorService
+import com.hsh.islandtimer.core.AppForegroundTracker
+import com.hsh.islandtimer.core.TimeStore
+import com.hsh.islandtimer.core.TrackedApps
+import com.hsh.islandtimer.core.UsageReconcileWorker
+import com.hsh.islandtimer.core.UsageStatsLedger
+import com.hsh.islandtimer.databinding.ActivityMainBinding
+import com.hsh.islandtimer.island.IslandNotifier
+import com.hsh.islandtimer.keepalive.KeepAliveHelper
+import com.hsh.islandtimer.service.ForegroundDetectorService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch

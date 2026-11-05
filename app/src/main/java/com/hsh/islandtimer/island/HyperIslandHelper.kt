@@ -1,4 +1,4 @@
-package com.hyperland.islandtimer.island
+﻿package com.hsh.islandtimer.island
 
 import android.os.Bundle
 import androidx.core.app.NotificationCompat

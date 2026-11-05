@@ -1,4 +1,4 @@
-package com.hyperland.islandtimer
+﻿package com.hsh.islandtimer
 
 import android.os.Build
 import android.os.Bundle
@@ -8,10 +8,10 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import com.google.android.material.snackbar.Snackbar
-import com.hyperland.islandtimer.core.AppForegroundTracker
-import com.hyperland.islandtimer.databinding.ActivityDiagnosticsBinding
-import com.hyperland.islandtimer.island.IslandDiagnostics
-import com.hyperland.islandtimer.island.IslandNotifier
+import com.hsh.islandtimer.core.AppForegroundTracker
+import com.hsh.islandtimer.databinding.ActivityDiagnosticsBinding
+import com.hsh.islandtimer.island.IslandDiagnostics
+import com.hsh.islandtimer.island.IslandNotifier
 
 /**
  * 诊断二级页：无需 adb 的上岛诊断 + 常驻测试通知。

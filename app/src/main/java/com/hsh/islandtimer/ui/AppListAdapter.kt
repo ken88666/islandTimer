@@ -1,4 +1,4 @@
-package com.hyperland.islandtimer.ui
+﻿package com.hsh.islandtimer.ui
 
 import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
@@ -6,8 +6,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.hyperland.islandtimer.databinding.ItemAppBinding
-import com.hyperland.islandtimer.island.IslandNotifier
+import com.hsh.islandtimer.databinding.ItemAppBinding
+import com.hsh.islandtimer.island.IslandNotifier
 
 class AppListAdapter : ListAdapter<AppListAdapter.AppItem, AppListAdapter.VH>(DIFF) {
 

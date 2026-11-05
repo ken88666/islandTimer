@@ -1,4 +1,4 @@
-# 会话交接包 · 超级岛计时 App（IslandTimer）
+# 会话交接包 · 节律岛 App（islandTimer）
 
 > 本文件是整个会话的完整交付摘要。新会话只需读本文件 + 现有代码（`app/` 目录）即可无缝续接，无需重新查证。
 >
@@ -33,7 +33,7 @@
 | **基础岛** | **Android 16「Live Updates / promoted ongoing」通知**：`NotificationCompat.Builder.setShortCriticalText()` + `.setRequestPromotedOngoing(true)`，系统显示 `smallIcon + shortCriticalText` 胶囊 | **不需要**（与签名无关，debug 包即可） | 100%，当前实现走这条 |
 | **正式超级岛** | 通过 `miui.focus.param` 解锁大岛/小岛/图片/进度条等 23+ 模板 | **需要**（申请+场景预审+指纹证书+灰度） | 部分契合，有 3 个审核风险点（见 §5） |
 
-> 关键事实（真机验证 2026-11-04，HyperOS 3.0.307 国行，包名 com.hyperland.islandtimer）：
+> 关键事实（真机验证 2026-11-04，HyperOS 3.0.307 国行，包名 com.hsh.islandtimer）：
 > - 基础岛走的是 **Android 16 原生 Live Updates（promoted ongoing）**，不是「任意常驻通知」；
 > - 必须真正调用 `setShortCriticalText()` + `setRequestPromotedOngoing()`（androidx.core 1.17+），**raw extras / 反射都设不到 Notification 内部字段**，否则 `hasPromotableCharacteristics()` 恒为 false；
 > - 需要 manifest 声明 `POST_PROMOTED_NOTIFICATIONS`；
@@ -107,7 +107,7 @@
 ## 4. 代码现状（已实现，位于 `app/`）
 
 ```
-app/src/main/java/com/hyperland/islandtimer/
+app/src/main/java/com/hsh/islandtimer/
 ├── App.kt                          # Application：初始化单例 + 调度对账 Worker
 ├── MainActivity.kt                 # 主界面：权限/保活/今日周合计/诊断 + 检查启动（对账转圈防连点）
 ├── AppListActivity.kt              # 二级页：选择要计时的应用（搜索/已勾选置顶）
@@ -202,11 +202,11 @@ app/src/main/java/com/hyperland/islandtimer/
 - [x] 界面重构：在 Android Studio 手动调整按钮样式、界面层级与外观（主界面 / 应用列表 / 诊断页 + 列表项）。
 - [x] git：初始化仓库、修复 `.gitignore`（补 `/app/build/`、`.kotlin/`、keystore 忽略）、首次提交、`master→main`、推送 GitHub。
 - [x] README 添加「AI 构建声明」（代码 100% AI 构建 + 人工测试）。
+- [x] 命名/包名统一：包名 `com.hyperland.islandtimer` → `com.hsh.islandtimer`（含代码包名）；App 显示名本地化（中文=节律岛，其他语言=islandTimer）；清理「HYPERLAND/」旧名残留。
 
 ### 未完成（发布前准备 · 当前重点）
 
 - [ ] 软件图标：补 adaptive icon（`mipmap-anydpi-v26` 前景/背景层 + `roundIcon`）；当前仅 `drawable/ic_launcher.xml` 矢量图。
-- [ ] 命名统一：清理「HYPERLAND/」旧名残留、定 App 公开名（当前 `app_name`=超级岛计时，`package`=com.hyperland.islandtimer）。
 - [ ] 版本号：抽常量 / 定发布版本（当前 `versionCode=1`、`versionName=0.1.0` 硬编码）。
 - [ ] 发布准备：生成 keystore + `keystore.properties` + 启用 signingConfig；同步 README 工具链版本（README 仍写 AGP 8.5.2 / Kotlin 1.9.24 / Gradle 8.7，与实际 8.9.2 / 2.1.0 / 8.11.1 不符）。
 

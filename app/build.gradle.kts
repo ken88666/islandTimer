@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.hyperland.islandtimer"
+    namespace = "com.hsh.islandtimer"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.hyperland.islandtimer"
+        applicationId = "com.hsh.islandtimer"
         minSdk = 26
         targetSdk = 34
         versionCode = 1

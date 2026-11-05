@@ -1,4 +1,4 @@
-package com.hyperland.islandtimer.service
+﻿package com.hsh.islandtimer.service
 
 import android.accessibilityservice.AccessibilityService
 import android.content.BroadcastReceiver
@@ -9,9 +9,9 @@ import android.os.SystemClock
 import android.provider.Settings
 import android.view.accessibility.AccessibilityEvent
 import androidx.core.content.ContextCompat
-import com.hyperland.islandtimer.core.AppForegroundTracker
-import com.hyperland.islandtimer.core.TrackedApps
-import com.hyperland.islandtimer.core.UsageStatsLedger
+import com.hsh.islandtimer.core.AppForegroundTracker
+import com.hsh.islandtimer.core.TrackedApps
+import com.hsh.islandtimer.core.UsageStatsLedger
 
 /**
  * 实时前台应用检测（触发层）+ 长期保活锚点。

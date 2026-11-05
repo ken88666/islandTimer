@@ -1,4 +1,4 @@
-package com.hyperland.islandtimer.service
+﻿package com.hsh.islandtimer.service
 
 import android.annotation.SuppressLint
 import android.app.Notification
@@ -12,9 +12,9 @@ import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
-import com.hyperland.islandtimer.R
-import com.hyperland.islandtimer.core.AppForegroundTracker
-import com.hyperland.islandtimer.island.IslandNotifier
+import com.hsh.islandtimer.R
+import com.hsh.islandtimer.core.AppForegroundTracker
+import com.hsh.islandtimer.island.IslandNotifier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob

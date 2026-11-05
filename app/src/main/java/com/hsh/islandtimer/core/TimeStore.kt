@@ -1,4 +1,4 @@
-package com.hyperland.islandtimer.core
+﻿package com.hsh.islandtimer.core
 
 import android.content.Context
 import android.content.SharedPreferences

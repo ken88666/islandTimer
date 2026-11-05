@@ -1,12 +1,12 @@
-package com.hyperland.islandtimer.island
+﻿package com.hsh.islandtimer.island
 
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import androidx.core.app.NotificationCompat
-import com.hyperland.islandtimer.R
-import com.hyperland.islandtimer.core.TrackedApps
+import com.hsh.islandtimer.R
+import com.hsh.islandtimer.core.TrackedApps
 import java.util.Locale
 
 /**

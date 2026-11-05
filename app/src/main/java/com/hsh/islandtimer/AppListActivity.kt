@@ -1,4 +1,4 @@
-package com.hyperland.islandtimer
+﻿package com.hsh.islandtimer
 
 import android.os.Bundle
 import android.view.View
@@ -9,11 +9,11 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.hyperland.islandtimer.core.AppForegroundTracker
-import com.hyperland.islandtimer.core.TimeStore
-import com.hyperland.islandtimer.core.TrackedApps
-import com.hyperland.islandtimer.databinding.ActivityAppListBinding
-import com.hyperland.islandtimer.ui.AppListAdapter
+import com.hsh.islandtimer.core.AppForegroundTracker
+import com.hsh.islandtimer.core.TimeStore
+import com.hsh.islandtimer.core.TrackedApps
+import com.hsh.islandtimer.databinding.ActivityAppListBinding
+import com.hsh.islandtimer.ui.AppListAdapter
 
 /**
  * 二级页面：选择要计时的应用。

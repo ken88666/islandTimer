@@ -1,4 +1,4 @@
-# 超级岛计时（IslandTimer）
+# 节律岛（islandTimer）
 
 在小米 HyperOS「超级岛」上显示**被计时应用的今日累计使用时长**的 Android 工程骨架。
 
@@ -52,7 +52,7 @@
 ## 目录结构
 
 ```
-app/src/main/java/com/hyperland/islandtimer/
+app/src/main/java/com/hsh/islandtimer/
 ├── App.kt                          # Application：初始化单例
 ├── MainActivity.kt                 # 权限状态 + 启动 + 选择被计时应用
 ├── core/
@@ -85,7 +85,7 @@ app/src/main/java/com/hyperland/islandtimer/
 | minSdk | 26（Android 8.0，java.time 无需脱糖） |
 | 依赖 | core-ktx / appcompat / material / constraintlayout / recyclerview / coroutines |
 
-用 Android Studio 打开本目录（`HYPERLAND/`）即可。AS 会识别 Gradle 配置并同步；
+用 Android Studio 打开本目录（`IslandTimer/`）即可。AS 会识别 Gradle 配置并同步；
 若提示 Gradle 版本缺失，AS 会自动下载 8.7 或按向导补全 wrapper。
 
 首次运行前需授予两项权限（App 内"检查并启动"会引导）：

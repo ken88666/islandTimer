@@ -1,12 +1,12 @@
-package com.hyperland.islandtimer
+﻿package com.hsh.islandtimer
 
 import android.app.Application
 import com.google.android.material.color.DynamicColors
-import com.hyperland.islandtimer.core.AppForegroundTracker
-import com.hyperland.islandtimer.core.TimeStore
-import com.hyperland.islandtimer.core.TrackedApps
-import com.hyperland.islandtimer.core.UsageReconcileWorker
-import com.hyperland.islandtimer.island.IslandNotifier
+import com.hsh.islandtimer.core.AppForegroundTracker
+import com.hsh.islandtimer.core.TimeStore
+import com.hsh.islandtimer.core.TrackedApps
+import com.hsh.islandtimer.core.UsageReconcileWorker
+import com.hsh.islandtimer.island.IslandNotifier
 
 class App : Application() {
     override fun onCreate() {
