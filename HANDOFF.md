@@ -203,10 +203,10 @@ app/src/main/java/com/hsh/islandtimer/
 - [x] git：初始化仓库、修复 `.gitignore`（补 `/app/build/`、`.kotlin/`、keystore 忽略）、首次提交、`master→main`、推送 GitHub。
 - [x] README 添加「AI 构建声明」（代码 100% AI 构建 + 人工测试）。
 - [x] 命名/包名统一：包名 `com.hyperland.islandtimer` → `com.hsh.islandtimer`（含代码包名）；App 显示名本地化（中文=节律岛，其他语言=islandTimer）；清理「HYPERLAND/」旧名残留。
+- [x] 软件图标：SVG 双层 adaptive icon（前景/背景 + `roundIcon` + monochrome + 各密度 webp + Play Store 图），HyperOS 3 经典主题实机验证通过。
 
 ### 未完成（发布前准备 · 当前重点）
 
-- [ ] 软件图标：补 adaptive icon（`mipmap-anydpi-v26` 前景/背景层 + `roundIcon`）；当前仅 `drawable/ic_launcher.xml` 矢量图。
 - [ ] 版本号：抽常量 / 定发布版本（当前 `versionCode=1`、`versionName=0.1.0` 硬编码）。
 - [ ] 发布准备：生成 keystore + `keystore.properties` + 启用 signingConfig；同步 README 工具链版本（README 仍写 AGP 8.5.2 / Kotlin 1.9.24 / Gradle 8.7，与实际 8.9.2 / 2.1.0 / 8.11.1 不符）。
 
@@ -220,7 +220,7 @@ app/src/main/java/com/hsh/islandtimer/
 
 ## 下一阶段（新会话从这里接手）
 
-- **当前阶段**：发布前准备 —— 软件图标 / 命名 / 版本号 / 发布（git 与推送已完成）。
+- **当前阶段**：发布前准备 —— 版本号 / 发布（签名 + release）（命名、图标、git 已完成）。
 - **待办清单**：见 §7「未完成（发布前准备 · 当前重点）」。
 - **岛内容的关键约束**（后续优化岛文案时必读）：
   - 岛上只显示 `smallIcon + shortCriticalText`（`shortCriticalText` 就是岛上的那行文字，当前是 `X分XX秒`）；
