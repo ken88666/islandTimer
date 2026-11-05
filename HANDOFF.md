@@ -1,6 +1,8 @@
 # 会话交接包 · 超级岛计时 App（IslandTimer）
 
 > 本文件是整个会话的完整交付摘要。新会话只需读本文件 + 现有代码（`app/` 目录）即可无缝续接，无需重新查证。
+>
+> 最后更新：2026-11-05
 
 ---
 
@@ -169,36 +171,62 @@ app/src/main/java/com/hyperland/islandtimer/
 
 > 工具链升级原因：`setRequestPromotedOngoing` 需要 androidx.core 1.17+，而它要求 compileSdk 36 + AGP 8.9.1+（连带 Gradle 8.11.1 + Kotlin 2.1.0）。
 
-打开 `HYPERLAND/` 目录即可用 Android Studio 同步构建。真机需 HyperOS 设备才能看到超级岛效果。
+打开 `IslandTimer/` 目录即可用 Android Studio 同步构建。真机需 HyperOS 设备才能看到超级岛效果。
 
 ---
 
-## 7. 下一步 / 待办
+## 6.1 版本控制 / 仓库
 
-- [x] 息屏暂停：监听 `ACTION_SCREEN_OFF` 结束会话，避免锁屏虚增。（已完成）
-- [x] 每周汇总展示：首页今日/本周合计 + 列表项今日/本周。（已完成）
-- [x] UsageStats 对账：WorkManager 15min 周期 + 「检查并启动」手动触发（防抖）。（已完成）
-- [x] 场景预审材料草稿。（已完成：docs/超级岛场景预审材料.md）
+- 远程仓库：https://github.com/ken88666/islandTimer.git
+- 分支：`main`（本地 `master` 已改名），本地与远程已同步
+- git 身份：`ken88666 <hesihan347@gmail.com>`（仅写在本仓库 `.git/config`，未设全局）
+- 认证方式：HTTPS + Git Credential Manager（GCM 2.9.1，浏览器 OAuth）
+- `.gitignore` 已补：`/app/build/`、`.kotlin/`、`*.keystore`、`*.jks`、`keystore.properties`
+
+---
+
+## 7. 进度与待办
+
+### 已完成（功能）
+
+- [x] 息屏暂停：监听 `ACTION_SCREEN_OFF` 结束会话，避免锁屏虚增。
+- [x] 每周汇总展示：首页今日/本周合计 + 列表项今日/本周。
+- [x] UsageStats 对账：WorkManager 15min 周期 + 「检查并启动」手动触发（防抖）。
+- [x] 场景预审材料草稿（`docs/超级岛场景预审材料.md`）。
 - [x] **基础岛真机验证通过**（HyperOS 3.0.307 国行：上岛 + 稳定常驻 + 防误隐藏 + 息屏暂停）。
-- [ ] 通知内容优化：当前岛文案是 `shortCriticalText` 的 `X分XX秒`，可优化成更美观/更紧凑的展示（后续）。
-- [x] 移除「测试上岛」按钮；应用列表拆到二级页 AppListActivity。（已完成）
-- [x] 诊断拆到独立二级页 `DiagnosticsActivity`（面板 + 刷新诊断 + 「显示常驻测试通知」按钮）。
-  测试通知实现：`IslandNotifier.showTestIsland()` → `buildPromotedNotification()`，用独立 ID **1002**，
-  与正式岛（1001）共存、互不覆盖；离开诊断页不自动撤销（曾因 onDestroy cancel 共享 1001 导致"上岛一秒即消失"）。
-- [ ] 诊断面板：可保留作调试，后续可做成隐藏开关。
-- [ ] 拿到官方 APP_ID 后接入富样式（引 HyperIsland-ToolKit 或按官方模板库联调）。
-- [ ] 正式签名证书固定：按 `app/build.gradle.kts` 中注释步骤生成 keystore 并启用 signingConfig（避免换签名导致上岛失效）。
+- [x] 移除「测试上岛」按钮；应用列表拆到二级页 `AppListActivity`。
+- [x] 诊断拆到独立二级页 `DiagnosticsActivity`（面板 + 刷新诊断 + 测试通知按钮；测试通知独立 ID 1002，与正式岛 1001 共存互不覆盖）。
+
+### 已完成（工程化）
+
+- [x] 界面重构：在 Android Studio 手动调整按钮样式、界面层级与外观（主界面 / 应用列表 / 诊断页 + 列表项）。
+- [x] git：初始化仓库、修复 `.gitignore`（补 `/app/build/`、`.kotlin/`、keystore 忽略）、首次提交、`master→main`、推送 GitHub。
+- [x] README 添加「AI 构建声明」（代码 100% AI 构建 + 人工测试）。
+
+### 未完成（发布前准备 · 当前重点）
+
+- [ ] 软件图标：补 adaptive icon（`mipmap-anydpi-v26` 前景/背景层 + `roundIcon`）；当前仅 `drawable/ic_launcher.xml` 矢量图。
+- [ ] 命名统一：清理「HYPERLAND/」旧名残留、定 App 公开名（当前 `app_name`=超级岛计时，`package`=com.hyperland.islandtimer）。
+- [ ] 版本号：抽常量 / 定发布版本（当前 `versionCode=1`、`versionName=0.1.0` 硬编码）。
+- [ ] 发布准备：生成 keystore + `keystore.properties` + 启用 signingConfig；同步 README 工具链版本（README 仍写 AGP 8.5.2 / Kotlin 1.9.24 / Gradle 8.7，与实际 8.9.2 / 2.1.0 / 8.11.1 不符）。
+
+### 未完成（后续功能 · 低优先级）
+
+- [ ] 通知内容优化：岛文案 `X分XX秒` 可优化为更美观/紧凑展示。
+- [ ] 诊断面板：后续可做成隐藏开关（调试用）。
+- [ ] 拿到官方 APP_ID 后接入富样式（HyperIsland-ToolKit 或官方模板库联调）。
 
 ---
 
 ## 下一阶段（新会话从这里接手）
 
-- **目标**：界面设计 + 超级岛「岛内容」的设计与定义（初版只做了功能，UI 和岛文案还很朴素）。
-- **岛内容的关键约束**（设计前必读）：
+- **当前阶段**：发布前准备 —— 软件图标 / 命名 / 版本号 / 发布（git 与推送已完成）。
+- **待办清单**：见 §7「未完成（发布前准备 · 当前重点）」。
+- **岛内容的关键约束**（后续优化岛文案时必读）：
   - 岛上只显示 `smallIcon + shortCriticalText`（`shortCriticalText` 就是岛上的那行文字，当前是 `X分XX秒`）；
   - `contentTitle` / `contentText` 只出现在下拉通知栏，**不上岛**；
   - 相关代码在 `island/IslandNotifier.kt` 的 `buildPromotedNotification()` / `buildTimerNotification()`。
-- **界面相关文件**：`MainActivity.kt` + `activity_main.xml`（主界面）、`AppListActivity.kt` + `activity_app_list.xml`（应用列表二级页）、`item_app.xml` + `AppListAdapter.kt`（列表项）。
+- **界面已重构完成**（手动，见 §7）：`MainActivity.kt` + `activity_main.xml`（主界面）、`AppListActivity.kt` + `activity_app_list.xml`（应用列表二级页）、`item_app.xml` + `AppListAdapter.kt`（列表项）、`DiagnosticsActivity.kt` + `activity_diagnostics.xml`（诊断页）。
 
 ---
 
