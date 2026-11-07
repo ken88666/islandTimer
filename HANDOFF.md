@@ -164,9 +164,9 @@ app/src/main/java/com/hsh/islandtimer/
 | Kotlin | 2.1.0 |
 | Gradle | 8.11.1 |
 | compileSdk | 36 |
-| targetSdk / minSdk | 34 / 26 |
+| targetSdk / minSdk | 36 / 26 |
 | 依赖 | core-ktx **1.17.0**（Live Updates API 需要）/ appcompat / material / constraintlayout / recyclerview / lifecycle-runtime-ktx / coroutines / work-runtime-ktx 2.9.1 |
-| 本地构建 JDK | **JDK 17**（`E:\Users\hesih\.jdks\jdk-17`） |
+| 本地构建 JDK | **JDK 21**（`C:\Users\hesih\.jdks\jbr-21.0.11`，Android Studio 自带 JBR；系统 PATH 里的 Oracle Java 8 不可用，AGP 8.9.2 要求 17+） |
 | 本地 SDK | `E:\Users\hesih\AppData\Local\Android\Sdk`（local.properties 已写好） |
 | 项目已配 gradlew | wrapper（gradle-8.11.1-bin.zip）+ gradle-wrapper.jar |
 | 构建状态 | `assembleDebug` / `assembleRelease` 均已验证通过（2026-11-08）；产物见 `app/build/outputs/apk/{debug,release}/` |
@@ -217,6 +217,7 @@ app/src/main/java/com/hsh/islandtimer/
 
 ### 未完成（后续功能 · 低优先级）
 
+- [ ] **R8/ProGuard 混淆**（1.0.0 上架稳定后再做，避免发布冲刺期引入新变量）：`isMinifyEnabled = true` + `isShrinkResources = true`；重新全量人工测试（防反射/动态加载出问题）；`bundleRelease` 生成 `mapping.txt`，上传 AAB 时在 Play Console 的 App bundle explorer 关联 deobfuscation file，供崩溃/ANR 堆栈还原。
 - [ ] 通知内容优化：岛文案 `X分XX秒` 可优化为更美观/紧凑展示。
 - [ ] 诊断面板：后续可做成隐藏开关（调试用）。
 - [ ] 拿到官方 APP_ID 后接入富样式（HyperIsland-ToolKit 或官方模板库联调）。
