@@ -2,7 +2,7 @@
 
 > 本文件是整个会话的完整交付摘要。新会话只需读本文件 + 现有代码（`app/` 目录）即可无缝续接，无需重新查证。
 >
-> 最后更新：2026-11-05
+> 最后更新：2026-11-08
 
 ---
 
@@ -139,6 +139,8 @@ app/src/main/java/com/hsh/islandtimer/
 - `UsageReconcileWorker`：每 15min + 「检查并启动」手动触发，把 UsageStats 每日前台时长回填 TimeStore（只取 max、当天活动会话跳过），解决重装后累计继承/漏记。
 - UI：主界面顶部「今日合计/本周合计」卡片；应用勾选列表在二级页 `AppListActivity`，每项显示该应用的今日/本周时长。
 - `HyperIslandHelper.kt` 里的 `miui.focus.*` key 是示意值，正式联调以官方模板库为准。
+- 应用显示名本地化：`values/strings.xml`=`islandTimer`（默认/其他语言），`values-zh-rCN/strings.xml`=`节律岛`（简体中文）。
+- 应用图标资源：`mipmap-anydpi-v26/ic_launcher(.round).xml`（adaptive icon，前景/背景矢量 + monochrome），各密度 webp + `ic_launcher-playstore.png`；`AndroidManifest` 使用 `@mipmap/ic_launcher` + `roundIcon`。
 
 另见 `docs/超级岛场景预审材料.md`（第二阶段正式岛申请的场景预审草稿）。
 
@@ -167,7 +169,7 @@ app/src/main/java/com/hsh/islandtimer/
 | 本地构建 JDK | **JDK 17**（`E:\Users\hesih\.jdks\jdk-17`） |
 | 本地 SDK | `E:\Users\hesih\AppData\Local\Android\Sdk`（local.properties 已写好） |
 | 项目已配 gradlew | wrapper（gradle-8.11.1-bin.zip）+ gradle-wrapper.jar |
-| 构建状态 | `assembleDebug` 已验证通过（2026-11-04），APK 见 `app/build/outputs/apk/debug/app-debug.apk` |
+| 构建状态 | `assembleDebug` / `assembleRelease` 均已验证通过（2026-11-08）；产物见 `app/build/outputs/apk/{debug,release}/` |
 
 > 工具链升级原因：`setRequestPromotedOngoing` 需要 androidx.core 1.17+，而它要求 compileSdk 36 + AGP 8.9.1+（连带 Gradle 8.11.1 + Kotlin 2.1.0）。
 
@@ -204,11 +206,14 @@ app/src/main/java/com/hsh/islandtimer/
 - [x] README 添加「AI 构建声明」（代码 100% AI 构建 + 人工测试）。
 - [x] 命名/包名统一：包名 `com.hyperland.islandtimer` → `com.hsh.islandtimer`（含代码包名）；App 显示名本地化（中文=节律岛，其他语言=islandTimer）；清理「HYPERLAND/」旧名残留。
 - [x] 软件图标：SVG 双层 adaptive icon（前景/背景 + `roundIcon` + monochrome + 各密度 webp + Play Store 图），HyperOS 3 经典主题实机验证通过。
+- [x] 版本号：`versionName = "1.0.0"`、`versionCode = 10000`（策略 B：major*10000 + minor*100 + patch）。
+- [x] 开源许可：添加 MIT `LICENSE`（`Copyright (c) 2026 ken88666`）。
+- [x] Release 签名：`app/build.gradle.kts` 启用 `signingConfigs`，从 `keystore.properties` 读取；无 properties 时回退 debug 签名（保证开源可构建）。密钥材料不入库。
 
 ### 未完成（发布前准备 · 当前重点）
 
-- [ ] 版本号：抽常量 / 定发布版本（当前 `versionCode=1`、`versionName=0.1.0` 硬编码）。
-- [ ] 发布准备：生成 keystore + `keystore.properties` + 启用 signingConfig；同步 README 工具链版本（README 仍写 AGP 8.5.2 / Kotlin 1.9.24 / Gradle 8.7，与实际 8.9.2 / 2.1.0 / 8.11.1 不符）。
+- [ ] Google Play 上架：Play Console 创建应用、上传 AAB（`bundleRelease`）。
+- [ ] 发布前文档收尾：同步 README 工具链版本（README 仍写 AGP 8.5.2 / Kotlin 1.9.24 / Gradle 8.7，与实际 8.9.2 / 2.1.0 / 8.11.1 不符；另 README 架构图 `canRetrieveWindowContent=false` 与实际 `true` 不一致）。
 
 ### 未完成（后续功能 · 低优先级）
 
@@ -220,7 +225,7 @@ app/src/main/java/com/hsh/islandtimer/
 
 ## 下一阶段（新会话从这里接手）
 
-- **当前阶段**：发布前准备 —— 版本号 / 发布（签名 + release）（命名、图标、git 已完成）。
+- **当前阶段**：发布前收尾 —— Google Play 上架 + README 工具链同步（命名、图标、版本号、签名、git 已完成）。
 - **待办清单**：见 §7「未完成（发布前准备 · 当前重点）」。
 - **岛内容的关键约束**（后续优化岛文案时必读）：
   - 岛上只显示 `smallIcon + shortCriticalText`（`shortCriticalText` 就是岛上的那行文字，当前是 `X分XX秒`）；
