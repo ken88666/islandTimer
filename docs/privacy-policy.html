@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy — islandTimer</title>
+<style>
+body { font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; max-width: 720px; margin: 0 auto; padding: 48px 24px 64px; line-height: 1.7; color: #1f2328; }
+h1 { font-size: 1.7em; }
+h2 { font-size: 1.15em; margin-top: 2.2em; }
+a { color: #0969da; }
+footer { margin-top: 3.5em; color: #59636e; font-size: 0.9em; }
+</style>
+</head>
+<body>
+<p><a href="index.html">islandTimer</a> · <a href="privacy-policy-zh.html">中文</a></p>
+<h1>Privacy Policy for islandTimer</h1>
+<p>Last updated: 8 November 2026</p>
+
+<p>islandTimer is an Android app that tracks how long you spend in the apps you select, and shows the running time as a capsule on Xiaomi HyperOS's Super Island. It is a local, single-user utility: there are no accounts, no servers, and the app does not declare the INTERNET permission, so no data can be sent anywhere.</p>
+
+<h2>What the app uses on your device</h2>
+
+<p><strong>Usage access.</strong> To calculate usage time, the app uses Android's UsageStats API — the same mechanism the system's own Digital Wellbeing features rely on. Enabling "Usage access" lets the app read the daily foreground durations for the apps you have selected. Those numbers are aggregated into daily and weekly totals and stored on the device.</p>
+
+<p><strong>Accessibility service.</strong> The app offers an optional accessibility service for one specific reason: the UsageStats API is not real-time enough to start and stop a timer the moment you switch apps. The service watches window-change events to determine the current foreground app. Its window-content capability is used only to confirm the foreground package name, so that transient windows (lock screen, notification shade, launcher animations) don't stop the timer by mistake. The service does not read or store screen content.</p>
+
+<p><strong>Notifications.</strong> The timer capsule on Super Island is delivered as an Android notification, which requires notification permission. The notification is rendered by the system on your device.</p>
+
+<p><strong>Battery and background settings.</strong> On MIUI/HyperOS devices, background apps are often frozen or killed unless the user explicitly exempts them. To keep the timer accurate, the app includes shortcuts to the relevant settings pages (battery optimization, auto-start). Those settings are changed by you, in the system UI.</p>
+
+<h2>Data on the device</h2>
+
+<p>The app stores two things locally: the list of apps you have chosen to track, and their accumulated durations. There is no other data — no identifiers, no advertising ID, no analytics SDK. Nothing is uploaded, shared, or sold, because the app has no network capability at all. Uninstalling the app removes this local data along with it.</p>
+
+<h2>Children</h2>
+
+<p>The app is a screen-time utility aimed at adults and is not directed at children under 13. Since no data leaves the device, the app does not collect information from anyone, children included.</p>
+
+<h2>Changes to this policy</h2>
+
+<p>If the app's behaviour changes — for example, a future version adds account sync — this page will be updated before or alongside that release.</p>
+
+<h2>Contact</h2>
+
+<p>Questions about the app or this policy: <a href="mailto:hesihan2000s@gmail.com">hesihan2000s@gmail.com</a></p>
+
+<footer>© 2026 islandTimer</footer>
+</body>
+</html>
