@@ -1,6 +1,13 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+}
+
+val keystoreProps = Properties().apply {
+    val f = rootProject.file("keystore.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
 }
 
 android {
@@ -15,6 +22,17 @@ android {
         versionName = "1.0.0"
     }
 
+    signingConfigs {
+        create("release") {
+            if (keystoreProps.containsKey("storeFile")) {
+                storeFile = rootProject.file(keystoreProps.getProperty("storeFile"))
+                storePassword = keystoreProps.getProperty("storePassword")
+                keyAlias = keystoreProps.getProperty("keyAlias")
+                keyPassword = keystoreProps.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -22,32 +40,8 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            // 正式签名配置占位：正式岛靠「指纹证书 + APP_ID」鉴权，
-            // 上线前必须固定同一签名证书（见 HANDOFF §7）。
-            // 1) keytool -genkeypair -v -keystore release.keystore -alias islandtimer \
-            //        -keyalg RSA -keysize 2048 -validity 10000
-            // 2) 项目根目录建 keystore.properties：
-            //        storeFile=release.keystore
-            //        storePassword=***
-            //        keyAlias=islandtimer
-            //        keyPassword=***
-            // 3) 取消下方注释后同步即可：
-            // import java.util.Properties
-            // val keystoreProps = Properties().apply {
-            //     val f = rootProject.file("keystore.properties")
-            //     if (f.exists()) f.inputStream().use { load(it) }
-            // }
-            // signingConfigs {
-            //     create("release") {
-            //         if (keystoreProps.containsKey("storeFile")) {
-            //             storeFile = rootProject.file(keystoreProps.getProperty("storeFile"))
-            //             storePassword = keystoreProps.getProperty("storePassword")
-            //             keyAlias = keystoreProps.getProperty("keyAlias")
-            //             keyPassword = keystoreProps.getProperty("keyPassword")
-            //         }
-            //     }
-            // }
-            // signingConfig = signingConfigs.getByName("release")
+            signingConfig = if (keystoreProps.containsKey("storeFile"))
+                signingConfigs.getByName("release") else signingConfigs.getByName("debug")
         }
     }
 
