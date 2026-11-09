@@ -59,7 +59,7 @@
                 android:resource="@xml/accessibility_config" />
         </service>
 
-        <!-- 计时前台服务：常驻通知 = 基础岛载体 -->
+        <!-- 计时前台服务：只做保活（通知 ID 1003），岛通知走 notify()（ID 1001） -->
         <service
             android:name=".service.UsageTimerService"
             android:exported="false"

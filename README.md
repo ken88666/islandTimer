@@ -7,9 +7,16 @@
 - 下午再打开 → 从上午攒下的时长继续累计；
 - 支持每日/每周刷新、自由配置被计时应用。
 
-> 本骨架走的是 **「基础岛」路线**：HyperOS 4 会把 AOSP 常驻(ongoing)通知自动抬上超级岛
-> （显示 smallIcon + 短文案），**不需要小米官方超级岛白名单**。富样式（大岛/进度条/图片）见
-> `island/HyperIslandHelper.kt`，需要申请官方权限后才能生效。
+> 本工程走的是 **「基础岛」路线**：走 Android 16 原生 **Live Updates（promoted ongoing）** 通知——
+> 在通知上真正调用 `setShortCriticalText()` + `setRequestPromotedOngoing()`（androidx.core 1.17+）后，
+> 系统把 `smallIcon + 短文案` 显示成超级岛胶囊，**不需要小米官方白名单，也与签名无关**。
+>
+> 该结论已实测（HyperOS 3.0.307 国行，2026-11-04），不是"等 HyperOS 4 才支持"：
+> 早期用 raw extras / 反射改不到 Notification 内部字段，`hasPromotableCharacteristics()` 恒为 false，
+> 必须走上面的公开 API；manifest 需声明 `POST_PROMOTED_NOTIFICATIONS`，用户还需在本应用通知设置里
+> 打开「焦点通知 / 实时活动」开关。
+>
+> 富样式（大岛/进度条/图片）见 `island/HyperIslandHelper.kt`，需要申请官方权限（白名单 + 指纹证书）后才能生效。
 
 ## AI 构建声明
 
@@ -23,7 +30,8 @@
                      ┌──────────────────────────────────────────┐
   前台应用切换  ──►  │  ForegroundDetectorService (Accessibility) │  ← 实时触发 + 保活锚点
   (亚秒级窗口事件)    │  · 只监听 TYPE_WINDOW_STATE_CHANGED         │
-                     │  · canRetrieveWindowContent = false       │
+                     │  · canRetrieveWindowContent = true        │
+                     │    （hide 前核实真实前台包名，不读文字内容） │
                      └───────────────┬──────────────────────────┘
                                      │ onForegroundChanged(pkg, isLauncher, now)
                                      ▼
@@ -35,41 +43,57 @@
                              ▼                      ▼
                 ┌────────────────────┐   ┌──────────────────────┐
                 │  UsageTimerService │   │  TimeStore (按天分桶) │
-                │  (前台服务+常驻通知) │   │  TrackedApps (配置)  │
-                │  = 基础岛载体        │   │  UsageStatsLedger(账本)│
-                └────────────────────┘   └──────────────────────┘
+                │  前台服务：只做保活  │   │  TrackedApps (配置)  │
+                │  + 1s 心跳刷新岛文案 │   │  UsageStatsLedger(账本)│
+                └─────────┬──────────┘   └──────────────────────┘
+                          │ notify()（不走 startForeground）
+                          ▼
+                ┌────────────────────┐
+                │   IslandNotifier   │  ← 基础岛载体：promoted ongoing
+                │  ID 1001 岛通知     │     通知，稳定上岛
+                └────────────────────┘
 ```
 
 **三个关键设计点：**
 
 1. **快速响应**：无障碍服务的 `TYPE_WINDOW_STATE_CHANGED` 事件亚秒级触发，负责"实时"；
-2. **时长准确**：`UsageStatsManager` 作为权威账本（`UsageStatsLedger`），可补历史、可对账；
-3. **低功耗**：纯事件驱动 + 15s 节流刷新通知文案；空闲时前台服务降级（撤通知=岛消失），
-   由无障碍服务负责长期保活。
+2. **时长准确**：`UsageStatsManager` 作为权威账本（`UsageStatsLedger`），可补历史、可对账
+   （`UsageReconcileWorker` 每 15 分钟 + 手动触发回填）；
+3. **低功耗**：纯事件驱动 + `UsageTimerService.TICK_MS = 1s` 心跳只刷新岛文案；
+   空闲时 `stopForeground(REMOVE)` + `cancel(1001)` 撤岛，由无障碍服务负责长期保活。
+   **岛通知走 `notify()`，不走前台服务通知**——HyperOS 3 上前台服务通知会被挤下岛。
 
 ---
 
 ## 目录结构
 
 ```
-app/src/main/java/com/hsh/islandtimer/
-├── App.kt                          # Application：初始化单例
-├── MainActivity.kt                 # 权限状态 + 启动 + 选择被计时应用
+app/src/main/java/com/hsh/islandtimer/     # 共 16 个 .kt
+├── App.kt                          # Application：初始化单例 + 调度对账 Worker
+├── MainActivity.kt                 # 主界面：权限状态 / 保活入口 / 今日·本周合计 / 诊断入口 / 检查并启动
+├── AppListActivity.kt              # 二级页：选择被计时应用（实时搜索 + 已勾选置顶）
+├── DiagnosticsActivity.kt          # 二级页：诊断面板 + 刷新诊断 + 常驻测试通知
 ├── core/
-│   ├── AppForegroundTracker.kt     # 状态机：连续时长/今日累计
+│   ├── AppForegroundTracker.kt     # 状态机：连续时长/今日累计/息屏暂停/防误隐藏
 │   ├── TrackedApps.kt              # 被计时应用集合 + 枚举可启动应用
 │   ├── TimeStore.kt                # 按天分桶持久化（每日/每周刷新）
-│   └── UsageStatsLedger.kt         # UsageStats 权威账本
+│   ├── UsageStatsLedger.kt         # UsageStats 权威账本
+│   └── UsageReconcileWorker.kt     # 账本对账：15min 周期 + reconcileNow() 手动触发
 ├── service/
-│   ├── ForegroundDetectorService.kt# 无障碍服务（实时前台检测）
-│   └── UsageTimerService.kt        # 前台服务 + 常驻通知（基础岛）
+│   ├── ForegroundDetectorService.kt# 无障碍服务（实时前台检测 + 保活锚点 + 息屏广播 + 前台核实）
+│   └── UsageTimerService.kt        # 前台服务：最小化保活通知（1003）+ 1s 心跳刷新岛（1001）
 ├── keepalive/
 │   └── KeepAliveHelper.kt          # MIUI 自启动/电池优化/权限跳转
 ├── island/
-│   ├── IslandNotifier.kt           # 通知构造（基础岛）
+│   ├── IslandNotifier.kt           # 基础岛通知构造（1001 岛 / 1002 测试，notify 通道 + promoted 标记）
+│   ├── IslandDiagnostics.kt        # 无 adb 诊断（extras 回读 / 能力查询 / 活跃通知）
 │   └── HyperIslandHelper.kt        # 富样式 miui.focus 扩展（可选，需鉴权）
 └── ui/
-    └── AppListAdapter.kt           # 应用勾选列表
+    └── AppListAdapter.kt           # 应用勾选列表（含「今日 · 本周」时长）
+
+docs/                               # GitHub Pages 源：隐私政策（纯 HTML）+ 超级岛预审材料草稿
+README.md / DEV_HANDOFF.md / LICENSE # 说明、开发交接、MIT
+release.keystore + keystore.properties  # 发布签名（已在 .gitignore，不入库；缺失时回退 debug 签名）
 ```
 
 ---
@@ -78,15 +102,27 @@ app/src/main/java/com/hsh/islandtimer/
 
 | 项 | 值 |
 |---|---|
-| AGP | 8.5.2 |
-| Kotlin | 1.9.24 |
-| Gradle | 8.7 |
-| compileSdk / targetSdk | 34 |
+| AGP | 8.9.2 |
+| Kotlin | 2.1.0 |
+| Gradle | 8.11.1（wrapper） |
+| compileSdk / targetSdk | 36 / 36 |
 | minSdk | 26（Android 8.0，java.time 无需脱糖） |
-| 依赖 | core-ktx / appcompat / material / constraintlayout / recyclerview / coroutines |
+| Java / jvmTarget | 17（构建用 JDK 21，见下） |
+| 依赖 | core-ktx 1.17.0 / appcompat 1.7.0 / material 1.12.0 / constraintlayout 2.1.4 / recyclerview 1.3.2 / lifecycle-runtime-ktx 2.8.3 / coroutines-android 1.8.1 / work-runtime-ktx 2.9.1 |
 
-用 Android Studio 打开本目录（`IslandTimer/`）即可。AS 会识别 Gradle 配置并同步；
-若提示 Gradle 版本缺失，AS 会自动下载 8.7 或按向导补全 wrapper。
+> 为什么是这套版本：`setRequestPromotedOngoing()` 需要 androidx.core **1.17+**，
+> 而它要求 compileSdk 36 + AGP 8.9.1+（连带 Gradle 8.11.1 + Kotlin 2.1.0）。
+
+用 Android Studio 打开本目录（`IslandTimer/`）即可，AS 会按 wrapper 下载 Gradle 8.11.1。
+命令行构建须指定 JDK 17+（系统 PATH 里的 Java 8 不行）：
+
+```powershell
+$env:JAVA_HOME = "<JDK 17 或 21 路径>"
+.\gradlew.bat assembleDebug
+```
+
+发布产物：`assembleRelease` → `app/build/outputs/apk/release/`（小米/自签渠道用 APK）；
+`bundleRelease` → `app/build/outputs/bundle/release/`（Google Play 用 AAB）。
 
 首次运行前需授予两项权限（App 内"检查并启动"会引导）：
 
@@ -132,4 +168,16 @@ HyperOS 保活四件套（App 内有入口）：
 - 无障碍服务被用户关闭后计时停止，属预期（App 内状态会显示"未开启"）。
 - `UsageStats` 事件有秒级延迟，故只做账本，不做实时触发。
 - 基础岛文案为"应用名 + 已使用时长"；进度条/大岛展开需官方权限。
-- 息屏（屏幕关闭）也会结束当前会话，避免锁屏后计时虚增（可通过监听 `ACTION_SCREEN_OFF` 扩展）。
+- 息屏（`ACTION_SCREEN_OFF`）立即结算并撤岛，避免锁屏后计时虚增；解锁（`ACTION_USER_PRESENT`）
+  时若被计时应用仍在前台则自动续计。
+- 本应用无联网权限、无账号、无第三方 SDK；数据只存在设备本地。
+  隐私政策：https://ken88666.github.io/islandTimer/privacy-policy.html （中文
+  [privacy-policy-zh.html](https://ken88666.github.io/islandTimer/privacy-policy-zh.html)），
+  源文件在 `docs/`。
+
+---
+
+## 许可
+
+MIT，见 [LICENSE](LICENSE)。`Copyright (c) 2026 ken88666`
+

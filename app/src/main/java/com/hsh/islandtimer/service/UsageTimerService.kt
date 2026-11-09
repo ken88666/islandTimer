@@ -1,4 +1,4 @@
-﻿package com.hsh.islandtimer.service
+package com.hsh.islandtimer.service
 
 import android.annotation.SuppressLint
 import android.app.Notification
@@ -28,8 +28,10 @@ import kotlinx.coroutines.launch
  *
  * 关键改动：HyperOS 3 上「前台服务通知（startForeground）」会被挤下岛/不稳定，
  * 而 notify() 发的 promoted 通知能稳定上岛。所以这里：
- * - startForeground() 用一条最小化、不进岛的服务通知（ID=1002，IMPORTANCE_MIN）；
+ * - startForeground() 用一条最小化、不进岛的服务通知（ID=1003，渠道 IMPORTANCE_DEFAULT，
+ *   用 MIN 会被 HyperOS 视作"不可见"进而冻结进程）；
  * - 真正的岛通知（ID=1001）走 IslandNotifier.showIsland() -> notify()；
+ * - 测试通知占 1002，三者互不覆盖（服务通知早期也用 1002，与测试通知撞号，已改 1003）；
  * - tickLoop() 每秒用 notify() 刷新岛文案，时长精确到秒且持续保持上岛。
  */
 class UsageTimerService : Service() {
@@ -37,7 +39,8 @@ class UsageTimerService : Service() {
     companion object {
         private const val EXTRA_SHOW = "show"
         private const val SERVICE_CHANNEL_ID = "timer_service"
-        private const val SERVICE_NOTIFICATION_ID = 1002
+        /** 1001 = 正式岛通知（notify）；1002 = 调试测试通知；服务保活通知独立占 1003 */
+        private const val SERVICE_NOTIFICATION_ID = 1003
         private const val TICK_MS = 1_000L
 
         fun show(context: Context) {

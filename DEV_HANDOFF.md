@@ -9,7 +9,7 @@
 > | 包名 | `com.hsh.islandtimer` |
 > | 版本 | `versionName 1.0.0` / `versionCode 10000` |
 > | 许可 | MIT（`LICENSE`） |
-> | 最后同步 | 2026-11-09（对应提交 `e37c8a3`） |
+> | 最后同步 | 2026-11-10（`main` 分支头；具体提交以 `git log -1` 为准） |
 
 ## 给接手代理的阅读顺序
 
@@ -140,11 +140,11 @@ core/
   UsageReconcileWorker.kt       # 账本对账：15min 周期 + reconcileNow() 手动触发
 service/
   ForegroundDetectorService.kt  # 无障碍：前台检测 + 保活锚点 + 息屏广播 + 浮层过滤 + 前台核实
-  UsageTimerService.kt          # 前台服务：最小化保活通知 + 1s 心跳（岛通知走 notify）
+  UsageTimerService.kt          # 前台服务：最小化保活通知（ID 1003）+ 1s 心跳（岛通知走 notify，ID 1001）
 keepalive/
   KeepAliveHelper.kt            # MIUI 自启动/电池优化/权限跳转
 island/
-  IslandNotifier.kt             # 基础岛通知构造（notify 通道 + promoted 标记，ID 1001/1002）
+  IslandNotifier.kt             # 基础岛通知构造（notify 通道 + promoted 标记，ID 1001 岛 / 1002 测试；服务保活通知占 1003）
   IslandDiagnostics.kt          # 无 adb 诊断（extras 回读/能力查询/活跃通知）
   HyperIslandHelper.kt          # 富样式 miui.focus（可选，需鉴权；key 为示意值）
 ui/
@@ -190,11 +190,13 @@ ui/
 | targetSdk / minSdk | 36 / 26 |
 | Java / jvmTarget | 17（构建用 JDK 21） |
 | 依赖 | core-ktx **1.17.0**（Live Updates API）/ appcompat 1.7.0 / material 1.12.0 / constraintlayout 2.1.4 / recyclerview 1.3.2 / lifecycle-runtime-ktx 2.8.3 / coroutines-android 1.8.1 / work-runtime-ktx 2.9.1 |
-| 构建状态 | `assembleDebug` / `assembleRelease` / `bundleRelease` 均已验证通过（2026-11-08）；release 产物在 `app/build/outputs/apk/release/`（APK）与 `bundle/release/`（AAB） |
+| 构建用 JDK | JBR 21（`<用户目录>\.jdks\jbr-21.0.11`，Android Studio 自带）；备选 Temurin 17.0.21。**系统 PATH 里的 Oracle Java 8 会导致 `Dependency requires at least JVM runtime version 11`** |
+| Android SDK | 由 `local.properties` 的 `sdk.dir` 指向本机 SDK 根目录（不入库）；build-tools 34.0.0 / 35.0.0 / 36.0.0 已装 |
+| 构建状态 | `assembleDebug` / `assembleRelease` / `bundleRelease` 均已验证通过；release 产物在 `app/build/outputs/apk/release/`（APK）与 `bundle/release/`（AAB）。**2026-11-09 本机（迁移后）复验**：`JAVA_HOME` 指 JBR 21 时 `assembleDebug` BUILD SUCCESSFUL |
 
 ```powershell
-# Windows 本机（JDK 21：Android Studio 自带 JBR；系统 PATH 里的 Oracle Java 8 不可用）
-$env:JAVA_HOME = "C:\Users\<用户名>\.jdks\jbr-21.0.11"
+# Windows：先指定 JDK 17+，再构建（PATH 里的 Oracle Java 8 不可用）
+$env:JAVA_HOME = "<用户目录>\.jdks\jbr-21.0.11"   # 或任意 JDK 17/21
 .\gradlew.bat assembleDebug
 ```
 
@@ -227,20 +229,23 @@ $env:JAVA_HOME = "C:\Users\<用户名>\.jdks\jbr-21.0.11"
 
 ### 未完成（当前重点）
 
-- [ ] **README 与代码事实同步**（`README.md` 已过期，逐条改）：
-  - 工具链：写的是 AGP 8.5.2 / Kotlin 1.9.24 / Gradle 8.7，实际 8.9.2 / 2.1.0 / 8.11.1；
-  - SDK：写的是 compileSdk/targetSdk 34，实际 36；
-  - 架构图：写的是 `canRetrieveWindowContent=false`，实际 `true`（且用途要写清为"核实包名"）；
-  - 刷新频率：写的是「15s 节流」，实际 1s 心跳（`UsageTimerService.TICK_MS`）；
-  - 目录结构缺 `AppListActivity` / `DiagnosticsActivity` / `UsageReconcileWorker` / `IslandDiagnostics`，且未提 `docs/` 隐私政策与签名配置；
-  - 首屏描述里「HyperOS 4 才会抬 AOSP 常驻通知」的表述需按 §2.1 的实测结论校正（HyperOS 3.0.307 已验证）。
+- [x] **README 与代码事实同步**（2026-11-09 完成，逐条结果）：
+  - 工具链：AGP 8.5.2 / Kotlin 1.9.24 / Gradle 8.7 → **8.9.2 / 2.1.0 / 8.11.1**，并补依赖版本表；
+  - SDK：compileSdk/targetSdk 34 → **36 / 36**；
+  - 架构图：`canRetrieveWindowContent=false` → **true**，并写明用途是"hide 前核实真实前台包名、不读文字内容"；
+  - 刷新频率：「15s 节流」→ **`UsageTimerService.TICK_MS = 1s` 心跳**，同时注明岛通知走 `notify()`；
+  - 目录结构：补 `AppListActivity` / `DiagnosticsActivity` / `UsageReconcileWorker` / `IslandDiagnostics`，并补 `docs/` 隐私政策、`release.keystore` + `keystore.properties` 签名说明、APK/AAB 产物路径、`JAVA_HOME` 要求；
+  - 首屏表述：「HyperOS 4 才会抬 AOSP 常驻通知」→ 按 §2.1 实测校正为 **HyperOS 3.0.307 已验证的 Android 16 Live Updates（promoted ongoing）**，并补 `POST_PROMOTED_NOTIFICATIONS` 与用户侧「焦点通知」开关；
+  - 附带补：架构图里 `UsageTimerService` 的定位由"基础岛载体"改为"保活 + 1s 心跳"，末端新增 `IslandNotifier` 载体；"已知边界"里息屏条目改为已实现（`ACTION_SCREEN_OFF` / `ACTION_USER_PRESENT`）；补隐私政策链接与 MIT 许可段。
 - [ ] 商店发布准备（素材与文案部分）：真机截图（主界面 / 应用列表 / 诊断页）、完整说明与简短说明文案、置顶大图。
 
 ### 已发现但未修（接手先处理，成本低）
 
-- [ ] **通知 ID 冲突**：`UsageTimerService.SERVICE_NOTIFICATION_ID = 1002` 与 `IslandNotifier.TEST_NOTIFICATION_ID = 1002` 是同一个 ID。计时服务在前台运行时点「常驻测试通知」，两条会互相覆盖；`IslandNotifier.isTestIslandShowing()` 也可能把服务通知认成测试通知。建议服务通知改用 1000 / 1003。
-- [ ] `UsageTimerService` 类头 KDoc 仍是旧说法（"startForeground() 用 ID=1002、IMPORTANCE_MIN"），与 `ensureServiceChannel()` 的实现（`IMPORTANCE_DEFAULT`）不符，注释需同步。
-- [ ] **死资源**：`res/drawable/ic_loading_spinner.xml`、`ic_loading_spinner_anim.xml`、`res/animator/spinner_rotate.xml` 已无任何代码/布局引用（主界面改成「加载中」文案 + Snackbar 后失效），可整组删除；注意别顺手删 `ic_more_vert` / `ic_chevron_right`（`activity_main.xml` 仍在用）。
+> 2026-11-09 本机（S5）三条已全部修掉，保留原文备查。
+
+- [x] **通知 ID 冲突**（已修）：`UsageTimerService.SERVICE_NOTIFICATION_ID` 1002 → **1003**，与 `IslandNotifier.TEST_NOTIFICATION_ID = 1002`、`NOTIFICATION_ID = 1001` 三者互不覆盖；`isTestIslandShowing()` 不会再误判服务通知。
+- [x] `UsageTimerService` 类头 KDoc 同步（已修）：改为"服务通知 ID=1003，渠道 `IMPORTANCE_DEFAULT`（MIN 会被 HyperOS 视作不可见而冻结进程）"，并在 companion 里补 1001/1002/1003 的用途注释。
+- [x] **死资源**（已删）：`res/drawable/ic_loading_spinner.xml`、`ic_loading_spinner_anim.xml`、`res/animator/spinner_rotate.xml` 三件套删除（删除前全仓检索确认仅三者互相引用，无代码/布局引用）；`ic_more_vert` / `ic_chevron_right` 保留未动。
 
 ### 未完成（后续功能 · 低优先级）
 
@@ -295,7 +300,8 @@ $env:JAVA_HOME = "C:\Users\<用户名>\.jdks\jbr-21.0.11"
 - 2026-11-08 · 初版（全量功能 + 工程化 + 研究结论）。
 - 2026-11-09 · 重构为 `DEV_HANDOFF.md`：重排阅读顺序、补 `docs/` 隐私政策与 `targetSdk 36`、修正代码地图与构建参数、README 不一致项细化为可执行清单、补 §9 维护规则。
 - 2026-11-09 · S1（技术线评审）：核对 §3/§4/§6/§7 与代码一致；§6 构建命令去标识化本地用户名（避免公开泄露 Windows 用户名）。
-- 2026-11-09 · S2（UI/交互线评审）：§4 主界面「转圈防连点」→「加载中 + Snackbar」（对齐 `MainActivity.kt`）；头部最后同步提交 6ec47bd → e37c8a3（git log -1）；核对 §3 常量、§6 工具链依赖、16 个 `.kt` 均与代码一致。
+- 2026-11-09 · S2（UI/交互线评审）：§4 主界面「转圈防连点」→「加载中 + Snackbar」（对齐 `MainActivity.kt`）；头部「最后同步」改为按 `git log -1` 取值；核对 §3 常量、§6 工具链依赖、16 个 `.kt` 均与代码一致。
 - 2026-11-09 · S3（工程化/记忆线评审）：§6 构建状态补 `bundleRelease` 与 release 产物路径（APK/AAB 实测存在，2026-11-08）；核对 §3 常量与 §4 代码地图（16 个 `.kt`）与代码一致。
 - 2026-11-09 · S4（发布线评审）：§7 隐私政策条目补 GitHub Pages 维护提示（`/docs` + `.nojekyll` 纯 HTML 直出，`.md` 为草稿、改政策须同步 HTML）；核对 §6 工具链（AGP 8.9.2 / Kotlin 2.1.0 / Gradle 8.11.1 / targetSdk 36）与 `app/build.gradle.kts`、`gradle-wrapper.properties` 一致。
 - 2026-11-09 · S0 汇总复核：合并四份评审、落定会话编号 S1–S4；对四份评审的交叉质疑逐条实测裁定——JDK 17 备选（Temurin 17.0.21）确实存在、`app/build/outputs/{apk,bundle}/release` 产物确实存在、`.kt` 实际 16 个；并新增「死资源」一条待修项（spinner 三件套已无引用）。
+- 2026-11-09 · S5（迁移后本机接续 · P3）：① §6 换机复验并改写——JDK 路径去标识化保留占位、补「系统 PATH 的 Oracle Java 8 会报 `Dependency requires at least JVM runtime version 11`」、补 SDK 由 `local.properties` 指向与 build-tools 34/35/36、补本机 `assembleDebug` BUILD SUCCESSFUL；② §7「README 与代码事实同步」六项全部改完并逐条留证（工具链/SDK/`canRetrieveWindowContent`/1s 心跳/目录结构/首屏 Live Updates 表述）；③ §7「已发现但未修」三条全部修掉：服务通知 ID 1002→1003、`UsageTimerService` 类头 KDoc 同步、删除 spinner 死资源三件套；④ §4 代码地图补通知 ID 分配（1001 岛 / 1002 测试 / 1003 服务）。头部「最后同步」改为按 `git log -1` 取值，不再写死提交号。
