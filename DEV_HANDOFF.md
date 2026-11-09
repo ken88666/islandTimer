@@ -9,7 +9,7 @@
 > | 包名 | `com.hsh.islandtimer` |
 > | 版本 | `versionName 1.0.0` / `versionCode 10000` |
 > | 许可 | MIT（`LICENSE`） |
-> | 最后同步 | 2026-11-09（对应提交 `6ec47bd`） |
+> | 最后同步 | 2026-11-09（对应提交 `e37c8a3`） |
 
 ## 给接手代理的阅读顺序
 
@@ -129,7 +129,7 @@
 
 ```
 App.kt                          # Application：初始化单例 + 调度对账 Worker
-MainActivity.kt                 # 主界面：权限/保活/今日周合计/诊断入口 + 检查启动（转圈防连点）
+MainActivity.kt                 # 主界面：权限/保活/今日周合计/诊断入口（更多菜单）+ 检查启动（按钮切「加载中」+ Snackbar 防连点）
 AppListActivity.kt              # 二级页：选择要计时的应用（搜索/已勾选置顶）
 DiagnosticsActivity.kt          # 二级页：诊断面板 + 刷新诊断 + 常驻测试通知
 core/
@@ -190,11 +190,11 @@ ui/
 | targetSdk / minSdk | 36 / 26 |
 | Java / jvmTarget | 17（构建用 JDK 21） |
 | 依赖 | core-ktx **1.17.0**（Live Updates API）/ appcompat 1.7.0 / material 1.12.0 / constraintlayout 2.1.4 / recyclerview 1.3.2 / lifecycle-runtime-ktx 2.8.3 / coroutines-android 1.8.1 / work-runtime-ktx 2.9.1 |
-| 构建状态 | `assembleDebug` / `assembleRelease` 均已验证通过（2026-11-08），产物在 `app/build/outputs/{apk,bundle}/release/` |
+| 构建状态 | `assembleDebug` / `assembleRelease` / `bundleRelease` 均已验证通过（2026-11-08）；release 产物在 `app/build/outputs/apk/release/`（APK）与 `bundle/release/`（AAB） |
 
 ```powershell
 # Windows 本机（JDK 21：Android Studio 自带 JBR；系统 PATH 里的 Oracle Java 8 不可用）
-$env:JAVA_HOME = "C:\Users\hesih\.jdks\jbr-21.0.11"
+$env:JAVA_HOME = "C:\Users\<用户名>\.jdks\jbr-21.0.11"
 .\gradlew.bat assembleDebug
 ```
 
@@ -223,7 +223,7 @@ $env:JAVA_HOME = "C:\Users\hesih\.jdks\jbr-21.0.11"
 - [x] release `signingConfigs`（从 `keystore.properties` 读取，缺失回退 debug）。
 - [x] git 仓库 + `.gitignore`（`/app/build/`、`.kotlin/`、`*.keystore`、`*.jks`、`keystore.properties`）+ README「AI 构建声明」。
 - [x] `targetSdk 36`（满足 Google Play 新提交要求）。
-- [x] 隐私政策页（`docs/index.html` + `privacy-policy.html` / `privacy-policy-zh.html`，GitHub Pages 已生效：https://ken88666.github.io/islandTimer/ ）。
+- [x] 隐私政策页（`docs/index.html` + `privacy-policy.html` / `privacy-policy-zh.html`，GitHub Pages 已生效：https://ken88666.github.io/islandTimer/ ）。维护注意：Pages 源是 `/docs` + `.nojekyll`（纯 HTML 直出）；`.md` 只是文案草稿，改政策必须同步 HTML，否则线上不变；`privacy-policy.html` 的 URL 是 Play Console 里填的地址，路径别动。
 
 ### 未完成（当前重点）
 
@@ -240,6 +240,7 @@ $env:JAVA_HOME = "C:\Users\hesih\.jdks\jbr-21.0.11"
 
 - [ ] **通知 ID 冲突**：`UsageTimerService.SERVICE_NOTIFICATION_ID = 1002` 与 `IslandNotifier.TEST_NOTIFICATION_ID = 1002` 是同一个 ID。计时服务在前台运行时点「常驻测试通知」，两条会互相覆盖；`IslandNotifier.isTestIslandShowing()` 也可能把服务通知认成测试通知。建议服务通知改用 1000 / 1003。
 - [ ] `UsageTimerService` 类头 KDoc 仍是旧说法（"startForeground() 用 ID=1002、IMPORTANCE_MIN"），与 `ensureServiceChannel()` 的实现（`IMPORTANCE_DEFAULT`）不符，注释需同步。
+- [ ] **死资源**：`res/drawable/ic_loading_spinner.xml`、`ic_loading_spinner_anim.xml`、`res/animator/spinner_rotate.xml` 已无任何代码/布局引用（主界面改成「加载中」文案 + Snackbar 后失效），可整组删除；注意别顺手删 `ic_more_vert` / `ic_chevron_right`（`activity_main.xml` 仍在用）。
 
 ### 未完成（后续功能 · 低优先级）
 
@@ -293,3 +294,8 @@ $env:JAVA_HOME = "C:\Users\hesih\.jdks\jbr-21.0.11"
 
 - 2026-11-08 · 初版（全量功能 + 工程化 + 研究结论）。
 - 2026-11-09 · 重构为 `DEV_HANDOFF.md`：重排阅读顺序、补 `docs/` 隐私政策与 `targetSdk 36`、修正代码地图与构建参数、README 不一致项细化为可执行清单、补 §9 维护规则。
+- 2026-11-09 · S1（技术线评审）：核对 §3/§4/§6/§7 与代码一致；§6 构建命令去标识化本地用户名（避免公开泄露 Windows 用户名）。
+- 2026-11-09 · S2（UI/交互线评审）：§4 主界面「转圈防连点」→「加载中 + Snackbar」（对齐 `MainActivity.kt`）；头部最后同步提交 6ec47bd → e37c8a3（git log -1）；核对 §3 常量、§6 工具链依赖、16 个 `.kt` 均与代码一致。
+- 2026-11-09 · S3（工程化/记忆线评审）：§6 构建状态补 `bundleRelease` 与 release 产物路径（APK/AAB 实测存在，2026-11-08）；核对 §3 常量与 §4 代码地图（16 个 `.kt`）与代码一致。
+- 2026-11-09 · S4（发布线评审）：§7 隐私政策条目补 GitHub Pages 维护提示（`/docs` + `.nojekyll` 纯 HTML 直出，`.md` 为草稿、改政策须同步 HTML）；核对 §6 工具链（AGP 8.9.2 / Kotlin 2.1.0 / Gradle 8.11.1 / targetSdk 36）与 `app/build.gradle.kts`、`gradle-wrapper.properties` 一致。
+- 2026-11-09 · S0 汇总复核：合并四份评审、落定会话编号 S1–S4；对四份评审的交叉质疑逐条实测裁定——JDK 17 备选（Temurin 17.0.21）确实存在、`app/build/outputs/{apk,bundle}/release` 产物确实存在、`.kt` 实际 16 个；并新增「死资源」一条待修项（spinner 三件套已无引用）。
